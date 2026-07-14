@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mintyn_bank/core/constants/app_colors.dart';
+import 'package:mintyn_bank/core/model/card_model.dart';
 
 class CardCarousel extends StatefulWidget {
-  const CardCarousel({super.key});
+  final List<CardModel> cards;
+  final ValueChanged<CardModel>? onCardTap;
+  final ValueChanged<CardModel>? onPageChanged;
+
+  const CardCarousel({
+    super.key,
+    required this.cards,
+    this.onCardTap,
+    this.onPageChanged,
+  });
 
   @override
   State<CardCarousel> createState() => _CardCarouselState();
 }
 
 class _CardCarouselState extends State<CardCarousel> {
-  final PageController _pageController = PageController(viewportFraction: 0.6);
+  final PageController _pageController = PageController(viewportFraction: 0.80);
   int _currentPage = 0;
 
   static const Color _accentBlue = Color(0xFF2F6FED);
-
-  final List<Color> _cardColors = const [
-    Color(0xFFFFFFFF),
-    Color(0xFF16324F),
-    Color(0xFF1F3D2B),
-  ];
 
   @override
   void dispose() {
@@ -32,12 +36,16 @@ class _CardCarouselState extends State<CardCarousel> {
     return Column(
       children: [
         SizedBox(
-          height: 190,
+          height: 200,
           child: PageView.builder(
             controller: _pageController,
-            itemCount: _cardColors.length,
-            onPageChanged: (index) => setState(() => _currentPage = index),
+            itemCount: widget.cards.length,
+            onPageChanged: (index) {
+              setState(() => _currentPage = index);
+              widget.onPageChanged?.call(widget.cards[index]);
+            },
             itemBuilder: (context, index) {
+              final card = widget.cards[index];
               return AnimatedBuilder(
                 animation: _pageController,
                 builder: (context, child) {
@@ -46,17 +54,19 @@ class _CardCarouselState extends State<CardCarousel> {
                     page = _pageController.page ?? page;
                   }
                   final delta = (page - index);
-                  final distance = delta.abs().clamp(0.0, 1.0);
-
-                  final scale = 1 - (distance * 0.22);
+                  final distance = delta.abs().clamp(0.0, 1);
+                  final scale = 1 - (distance * 0.1);
 
                   return Center(
                     child: Transform.scale(scale: scale, child: child),
                   );
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: CardFace(color: _cardColors[index]),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: GestureDetector(
+                    onTap: () => widget.onCardTap?.call(card),
+                    child: CardFace(card: card),
+                  ),
                 ),
               );
             },
@@ -65,7 +75,7 @@ class _CardCarouselState extends State<CardCarousel> {
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(_cardColors.length, (index) {
+          children: List.generate(widget.cards.length, (index) {
             final isActive = index == _currentPage;
             return AnimatedContainer(
               duration: const Duration(milliseconds: 200),
@@ -85,17 +95,27 @@ class _CardCarouselState extends State<CardCarousel> {
 }
 
 class CardFace extends StatelessWidget {
-  final Color color;
+  final CardModel card;
 
-  const CardFace({super.key, required this.color});
+  const CardFace({super.key, required this.card});
 
   Widget cardDetails(String detail, String label) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(detail, style: TextStyle(fontSize: 13, color: AppColors.textGrey)),
-        Text(label, style: TextStyle(fontSize: 15)),
-      ],
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            detail,
+            style: TextStyle(fontSize: 11, color: AppColors.textGrey),
+          ),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 13),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ],
+      ),
     );
   }
 
@@ -104,9 +124,9 @@ class CardFace extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: color,
+        // color: card.color,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Color(0xFFE5E4E4), width: 0.5),
+        border: Border.all(color: const Color(0xFFE5E4E4), width: 0.5),
       ),
       child: Stack(
         fit: StackFit.expand,
@@ -128,22 +148,23 @@ class CardFace extends StatelessWidget {
                 Row(
                   children: [
                     SvgPicture.asset('assets/icons/chip.svg'),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     SvgPicture.asset('assets/icons/internet.svg'),
                   ],
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Text(
-                  '●●●● ●●●● ●●●●  2345',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  '●●●● ●●●● ●●●●  ${card.last4}',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    cardDetails("Card Holder", "Tayyab Sohail"),
-                    cardDetails("Valid", "12 /02/2024"),
-                    cardDetails("CVV", "633"),
+                    cardDetails('Card Holder', card.holderName),
+                    const SizedBox(width: 12),
+                    cardDetails('Valid', card.expiryDate),
+                    const SizedBox(width: 12),
+                    cardDetails('CVV', card.cvv),
                   ],
                 ),
               ],

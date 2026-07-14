@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mintyn_bank/core/constants/app_colors.dart';
+import 'package:mintyn_bank/core/model/card_model.dart';
 import 'package:mintyn_bank/views/card/card_carousel.dart';
 import 'package:mintyn_bank/views/card_transaction/card_transactions.dart';
-
-enum CardType { physical, virtual }
 
 class CreditCard extends StatefulWidget {
   const CreditCard({super.key});
@@ -15,9 +14,8 @@ class CreditCard extends StatefulWidget {
 
 class _CreditCardState extends State<CreditCard> {
   CardType _selectedType = CardType.physical;
-  final PageController _pageController = PageController(viewportFraction: 0.78);
-  int _currentPage = 0;
   bool _revealed = false;
+  CardModel _focusedCard = dummyCards.first;
 
   final Map<String, bool> _settings = {
     'Change Pin': true,
@@ -26,16 +24,18 @@ class _CreditCardState extends State<CreditCard> {
     'Tap Pay': true,
   };
 
-  // static const Color AppColors.darkBlue = Color(0xFF0047B3);
+  List<CardModel> get _filteredCards =>
+      dummyCards.where((c) => c.type == _selectedType).toList();
 
   @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
+  void didUpdateWidget(covariant CreditCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
   Widget build(BuildContext context) {
+    final cards = _filteredCards;
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -43,15 +43,18 @@ class _CreditCardState extends State<CreditCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 15),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 0,
+                  vertical: 15,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                      children: const [
                         Padding(
-                          padding: const EdgeInsets.only(left: 20),
+                          padding: EdgeInsets.only(left: 20),
                           child: Text(
                             'Your Card',
                             style: TextStyle(
@@ -67,25 +70,58 @@ class _CreditCardState extends State<CreditCard> {
                     Padding(
                       padding: const EdgeInsets.only(left: 20),
                       child: Text(
-                        '2 Physical Card, 1 Virtual Card',
+                        '${dummyCards.where((c) => c.type == CardType.physical).length} Physical Card, '
+                        '${dummyCards.where((c) => c.type == CardType.virtual).length} Virtual Card',
                         style: TextStyle(
                           color: AppColors.textGrey,
                           fontSize: 12,
                         ),
                       ),
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     Padding(
                       padding: const EdgeInsets.only(left: 20),
                       child: CardTypeToggle(
                         selected: _selectedType,
-                        onChanged: (type) =>
-                            setState(() => _selectedType = type),
+                        onChanged: (type) {
+                          setState(() {
+                            _selectedType = type;
+                            final newCards = _filteredCards;
+                            if (newCards.isNotEmpty) {
+                              _focusedCard = newCards.first;
+                            }
+                          });
+                        },
                         accentColor: AppColors.darkBlue,
                       ),
                     ),
                     const SizedBox(height: 20),
-                    CardCarousel(),
+                    if (cards.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        child: Center(
+                          child: Text(
+                            'No ${_selectedType == CardType.physical ? 'physical' : 'virtual'} cards',
+                            style: TextStyle(color: AppColors.textGrey),
+                          ),
+                        ),
+                      )
+                    else
+                      CardCarousel(
+                        key: ValueKey(_selectedType),
+                        cards: cards,
+                        onPageChanged: (card) =>
+                            setState(() => _focusedCard = card),
+                        onCardTap: (card) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  CardTransactions(card: card),
+                            ),
+                          );
+                        },
+                      ),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -112,13 +148,16 @@ class _CreditCardState extends State<CreditCard> {
                   ],
                 ),
               ),
-              Divider(),
+              const Divider(),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Card Settings',
                       style: TextStyle(
                         letterSpacing: 0.4,
@@ -126,7 +165,7 @@ class _CreditCardState extends State<CreditCard> {
                         fontSize: 28,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     SettingsRow(
                       asset: 'assets/icons/password.svg',
                       label: 'Change Pin',
@@ -135,7 +174,7 @@ class _CreditCardState extends State<CreditCard> {
                       onChanged: (v) =>
                           setState(() => _settings['Change Pin'] = v),
                     ),
-                    SizedBox(height: 19),
+                    const SizedBox(height: 19),
                     SettingsRow(
                       asset: 'assets/icons/qr.svg',
                       label: 'QR Payment',
@@ -144,7 +183,7 @@ class _CreditCardState extends State<CreditCard> {
                       onChanged: (v) =>
                           setState(() => _settings['QR Payment'] = v),
                     ),
-                    SizedBox(height: 19),
+                    const SizedBox(height: 19),
                     SettingsRow(
                       asset: 'assets/icons/house.svg',
                       label: 'Online Shopping',
@@ -153,7 +192,7 @@ class _CreditCardState extends State<CreditCard> {
                       onChanged: (v) =>
                           setState(() => _settings['Online Shopping'] = v),
                     ),
-                    SizedBox(height: 19),
+                    const SizedBox(height: 19),
                     SettingsRow(
                       asset: 'assets/icons/card.svg',
                       label: 'Card Transactions',
@@ -165,12 +204,13 @@ class _CreditCardState extends State<CreditCard> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CardTransactions(),
+                            builder: (context) =>
+                                CardTransactions(card: _focusedCard),
                           ),
                         );
                       },
                     ),
-                    SizedBox(height: 19),
+                    const SizedBox(height: 19),
                     SettingsRow(
                       asset: 'assets/icons/internet.svg',
                       label: 'Tap Pay',
