@@ -40,7 +40,24 @@ class _HomepageState extends State<Homepage> {
                         size: 28,
                       ),
                     ),
-                    Text('Welcome Tayyab Sohali', style: TextStyle()),
+                    Text.rich(
+                      TextSpan(
+                        text: 'Welcome ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 15,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: 'Tayyab Sohali',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     Icon(Icons.notifications),
                   ],
                 ),

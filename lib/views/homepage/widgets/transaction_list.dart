@@ -168,7 +168,15 @@ class AnimatedTransactionTileState extends State<AnimatedTransactionTile>
             children: [
               Row(
                 children: [
-                  Icon(transaction.icon),
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: AppColors.grey1,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(transaction.icon),
+                  ),
                   SizedBox(width: 20),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

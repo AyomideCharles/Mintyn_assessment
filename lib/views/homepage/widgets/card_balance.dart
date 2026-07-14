@@ -32,14 +32,12 @@ class CardBalance extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        height: 236,
         width: double.infinity,
         decoration: BoxDecoration(
           border: Border.all(color: Color(0xFFE5E4E4), width: 1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Stack(
-          fit: StackFit.expand,
           children: [
             Positioned.fill(
               child: Image.asset(
@@ -51,10 +49,11 @@ class CardBalance extends StatelessWidget {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Image.asset("assets/icons/masterCard.png"),
+                    child: SvgPicture.asset("assets/icons/mastercard.svg"),
                   ),
                   SizedBox(height: 10),
                   Row(
@@ -62,6 +61,7 @@ class CardBalance extends StatelessWidget {
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             'Total Balance',
@@ -71,17 +71,18 @@ class CardBalance extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '\$ 1200',
+                            '1200\$',
                             style: TextStyle(
                               color: AppColors.whiteColor,
                               fontWeight: FontWeight.w700,
                               fontSize: 34,
+                              letterSpacing: 0.4,
                             ),
                           ),
                         ],
                       ),
                       SvgPicture.asset(
-                        'assets/images/qr_code.svg',
+                        'assets/icons/qr_code.svg',
                         width: 40,
                         height: 40,
                       ),

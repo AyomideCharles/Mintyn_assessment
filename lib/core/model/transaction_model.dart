@@ -48,7 +48,7 @@ final List<TransactionModel> dummyTransactions = [
   TransactionModel(
     id: '5',
     icon: Icons.swap_horiz_rounded,
-    title: 'Transfer to Me',
+    title: 'Transfer to J. Lee',
     time: DateTime.now().subtract(const Duration(days: 4)),
     amount: -100.00,
   ),

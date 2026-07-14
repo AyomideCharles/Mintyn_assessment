@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mintyn_bank/core/constants/app_colors.dart';
 import 'package:mintyn_bank/views/card/card_carousel.dart';
+import 'package:mintyn_bank/views/card_transaction/card_transactions.dart';
 
 enum CardType { physical, virtual }
 
@@ -25,7 +26,7 @@ class _CreditCardState extends State<CreditCard> {
     'Tap Pay': true,
   };
 
-  static const Color _accentBlue = Color(0xFF0047B3);
+  // static const Color AppColors.darkBlue = Color(0xFF0047B3);
 
   @override
   void dispose() {
@@ -42,33 +43,46 @@ class _CreditCardState extends State<CreditCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 15),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Your Card',
-                          style: TextStyle(
-                            letterSpacing: 0.4,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 28,
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20),
+                          child: Text(
+                            'Your Card',
+                            style: TextStyle(
+                              letterSpacing: 0.4,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 28,
+                            ),
                           ),
                         ),
                         Icon(Icons.more_horiz),
                       ],
                     ),
-                    Text(
-                      '2 Physical Card, 1 Virtual Card',
-                      style: TextStyle(color: AppColors.textGrey, fontSize: 12),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Text(
+                        '2 Physical Card, 1 Virtual Card',
+                        style: TextStyle(
+                          color: AppColors.textGrey,
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
                     SizedBox(height: 15),
-                    CardTypeToggle(
-                      selected: _selectedType,
-                      onChanged: (type) => setState(() => _selectedType = type),
-                      accentColor: _accentBlue,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: CardTypeToggle(
+                        selected: _selectedType,
+                        onChanged: (type) =>
+                            setState(() => _selectedType = type),
+                        accentColor: AppColors.darkBlue,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     CardCarousel(),
@@ -117,7 +131,7 @@ class _CreditCardState extends State<CreditCard> {
                       asset: 'assets/icons/password.svg',
                       label: 'Change Pin',
                       value: _settings['Change Pin']!,
-                      accentColor: _accentBlue,
+                      accentColor: AppColors.darkBlue,
                       onChanged: (v) =>
                           setState(() => _settings['Change Pin'] = v),
                     ),
@@ -126,7 +140,7 @@ class _CreditCardState extends State<CreditCard> {
                       asset: 'assets/icons/qr.svg',
                       label: 'QR Payment',
                       value: _settings['QR Payment']!,
-                      accentColor: _accentBlue,
+                      accentColor: AppColors.darkBlue,
                       onChanged: (v) =>
                           setState(() => _settings['QR Payment'] = v),
                     ),
@@ -135,7 +149,7 @@ class _CreditCardState extends State<CreditCard> {
                       asset: 'assets/icons/house.svg',
                       label: 'Online Shopping',
                       value: _settings['Online Shopping']!,
-                      accentColor: _accentBlue,
+                      accentColor: AppColors.darkBlue,
                       onChanged: (v) =>
                           setState(() => _settings['Online Shopping'] = v),
                     ),
@@ -147,14 +161,21 @@ class _CreditCardState extends State<CreditCard> {
                         Icons.chevron_right_rounded,
                         color: Colors.white54,
                       ),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CardTransactions(),
+                          ),
+                        );
+                      },
                     ),
                     SizedBox(height: 19),
                     SettingsRow(
                       asset: 'assets/icons/internet.svg',
                       label: 'Tap Pay',
                       value: _settings['Tap Pay']!,
-                      accentColor: _accentBlue,
+                      accentColor: AppColors.darkBlue,
                       onChanged: (v) =>
                           setState(() => _settings['Tap Pay'] = v),
                     ),

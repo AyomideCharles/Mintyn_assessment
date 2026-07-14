@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:mintyn_bank/core/constants/app_colors.dart';
 
 class CardCarousel extends StatefulWidget {
   const CardCarousel({super.key});
@@ -54,7 +56,7 @@ class _CardCarouselState extends State<CardCarousel> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: _CardFace(color: _cardColors[index]),
+                  child: CardFace(color: _cardColors[index]),
                 ),
               );
             },
@@ -82,10 +84,20 @@ class _CardCarouselState extends State<CardCarousel> {
   }
 }
 
-class _CardFace extends StatelessWidget {
+class CardFace extends StatelessWidget {
   final Color color;
 
-  const _CardFace({required this.color});
+  const CardFace({super.key, required this.color});
+
+  Widget cardDetails(String detail, String label) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(detail, style: TextStyle(fontSize: 13, color: AppColors.textGrey)),
+        Text(label, style: TextStyle(fontSize: 15)),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +106,50 @@ class _CardFace extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Color(0xFFE5E4E4), width: 0.5),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/card_background.png',
+            width: double.infinity,
+            fit: BoxFit.cover,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: SvgPicture.asset('assets/icons/mastercard.svg'),
+                ),
+                Row(
+                  children: [
+                    SvgPicture.asset('assets/icons/chip.svg'),
+                    SizedBox(width: 20),
+                    SvgPicture.asset('assets/icons/internet.svg'),
+                  ],
+                ),
+                SizedBox(height: 5),
+                Text(
+                  '●●●● ●●●● ●●●●  2345',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                SizedBox(height: 5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    cardDetails("Card Holder", "Tayyab Sohail"),
+                    cardDetails("Valid", "12 /02/2024"),
+                    cardDetails("CVV", "633"),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
