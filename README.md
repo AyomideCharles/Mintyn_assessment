@@ -105,14 +105,3 @@ duplicated per screen.
 - Card number/CVV reveal, freeze toggle, and filter chip selection all animate their state
   changes rather than snapping
 - Profile screen sections cascade in with staggered fade + slide on first load
-
-
-## Notes / assumptions
-
-- Built primarily from shared screenshots rather than a live Figma session — spacing/color
-  tokens in `core/constants` may need final adjustment against the actual Figma file for
-  pixel-exact accuracy.
-- All data is mocked; `RealtimeService` simulates live updates via `Timer`/`Stream` rather
-  than a real socket connection.
-- `MockUserService.updateUser()` exists but isn't called from any screen yet — profile edits
-  currently update in-memory state only, no persistence layer.
