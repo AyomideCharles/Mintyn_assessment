@@ -21,6 +21,11 @@ flutter run
 flutter test
 ```
 
+## Google drive link (Emulator recording)
+https://drive.google.com/file/d/1t-RzeueUk8Z_Y0UXtNaFtBgTbdKkzjqg/view?usp=share_link
+
+
+
 ## Screens implemented
 
 - **Home** — live balance card, recent transaction preview
