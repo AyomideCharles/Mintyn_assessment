@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mintyn_bank/core/constants/app_colors.dart';
+import 'package:mintyn_bank/views/homepage/provider/balance_provider.dart';
 import 'package:mintyn_bank/views/homepage/widgets/card_balance.dart';
 import 'package:mintyn_bank/views/homepage/widgets/app_drawer.dart';
 import 'package:mintyn_bank/views/homepage/widgets/transaction_list.dart';
+import 'package:provider/provider.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -66,7 +68,15 @@ class _HomepageState extends State<Homepage> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    CardBalance(),
+                    // CardBalance(),
+                    Consumer<BalanceProvider>(
+                      builder: (context, provider, _) {
+                        return CardBalance(
+                          balance: provider.balance,
+                          isLive: provider.isLive,
+                        );
+                      },
+                    ),
                     SizedBox(height: 30),
                     Container(
                       padding: EdgeInsets.symmetric(

@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mintyn_bank/core/model/transaction_model.dart';
+import 'package:mintyn_bank/core/services/realtime_services.dart';
 import 'package:mintyn_bank/core/services/transaction_mock_service.dart';
 
 enum ViewState { idle, loading, loaded, error }
@@ -8,18 +10,24 @@ enum TxnFilter { today, weekly, monthly }
 
 class TransactionProvider extends ChangeNotifier {
   final MockTransactionService _service;
-  TransactionProvider(this._service);
+  final RealtimeService _realtime;
+  TransactionProvider(this._service, this._realtime);
 
   ViewState _state = ViewState.idle;
   List<TransactionModel> _all = [];
   String? _errorMessage;
   TxnFilter _filter = TxnFilter.today;
+  ConnectionStatus _connectionStatus = ConnectionStatus.disconnected;
+
+  StreamSubscription<TransactionModel>? _txnSub;
+  StreamSubscription<ConnectionStatus>? _statusSub;
 
   ViewState get state => _state;
   bool get isLoading => _state == ViewState.loading;
   bool get hasError => _state == ViewState.error;
   String? get errorMessage => _errorMessage;
   TxnFilter get filter => _filter;
+  ConnectionStatus get connectionStatus => _connectionStatus;
 
   List<TransactionModel> get transactions {
     final now = DateTime.now();
@@ -37,6 +45,12 @@ class TransactionProvider extends ChangeNotifier {
     return filtered..sort((a, b) => b.time.compareTo(a.time));
   }
 
+  List<TransactionModel> transactionsForCard(String cardId) {
+    final filtered = _all.where((t) => t.cardId == cardId).toList()
+      ..sort((a, b) => b.time.compareTo(a.time));
+    return filtered;
+  }
+
   Future<void> load() async {
     _state = ViewState.loading;
     _errorMessage = null;
@@ -49,6 +63,18 @@ class TransactionProvider extends ChangeNotifier {
       _state = ViewState.error;
     }
     notifyListeners();
+    _subscribeToRealtime();
+  }
+
+  void _subscribeToRealtime() {
+    _statusSub ??= _realtime.statusStream.listen((status) {
+      _connectionStatus = status;
+      notifyListeners();
+    });
+    _txnSub ??= _realtime.transactionStream.listen((txn) {
+      _all = [txn, ..._all];
+      notifyListeners();
+    });
   }
 
   void setFilter(TxnFilter filter) {
@@ -57,10 +83,10 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // this is to get transactions by each card
-  List<TransactionModel> transactionsForCard(String cardId) {
-    final filtered = _all.where((t) => t.cardId == cardId).toList()
-      ..sort((a, b) => b.time.compareTo(a.time));
-    return filtered;
+  @override
+  void dispose() {
+    _txnSub?.cancel();
+    _statusSub?.cancel();
+    super.dispose();
   }
 }

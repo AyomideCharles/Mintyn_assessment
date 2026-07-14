@@ -124,7 +124,6 @@ class CardFace extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        // color: card.color,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFE5E4E4), width: 0.5),
       ),

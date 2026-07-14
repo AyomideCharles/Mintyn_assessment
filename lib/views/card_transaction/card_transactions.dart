@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:mintyn_bank/core/services/realtime_services.dart';
+import 'package:mintyn_bank/views/homepage/widgets/animated_tile.dart';
+import 'package:mintyn_bank/views/shared_widgets/connection_banner.dart';
+import 'package:mintyn_bank/views/shared_widgets/header_text.dart';
 import 'package:provider/provider.dart';
 import 'package:mintyn_bank/core/constants/app_colors.dart';
 import 'package:mintyn_bank/core/model/card_model.dart';
-import 'package:mintyn_bank/views/card/card_carousel.dart';
+import 'package:mintyn_bank/views/card/widgets/card_carousel.dart';
 import 'package:mintyn_bank/views/card_transaction/widget/spend_chart.dart';
 import 'package:mintyn_bank/views/homepage/provider/transaction_provider.dart';
 
@@ -16,7 +19,19 @@ class CardTransactions extends StatefulWidget {
   State<CardTransactions> createState() => _CardTransactionsState();
 }
 
-class _CardTransactionsState extends State<CardTransactions> {
+class _CardTransactionsState extends State<CardTransactions>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _entranceController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 450),
+  )..forward();
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -42,20 +57,54 @@ class _CardTransactionsState extends State<CardTransactions> {
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text(
-                          'Card Transaction',
-                          style: TextStyle(
-                            letterSpacing: 0.4,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 28,
-                          ),
+                      children: [
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Icon(Icons.navigate_before, size: 35),
+                            ),
+                            SizedBox(width: 10),
+                            HeaderText('Card Transaction'),
+                          ],
                         ),
                         Icon(Icons.more_horiz),
                       ],
                     ),
                     const SizedBox(height: 20),
-                    SizedBox(height: 190, child: CardFace(card: widget.card)),
+                    Consumer<TransactionProvider>(
+                      builder: (context, provider, _) {
+                        final status = provider.connectionStatus;
+                        if (status != ConnectionStatus.disconnected &&
+                            status != ConnectionStatus.reconnecting) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: ConnectionBanner(
+                            reconnecting:
+                                status == ConnectionStatus.reconnecting,
+                          ),
+                        );
+                      },
+                    ),
+                    SizedBox(
+                      height: 190,
+                      child: FadeTransition(
+                        opacity: _entranceController,
+                        child: ScaleTransition(
+                          scale: Tween(begin: 0.75, end: 1.0).animate(
+                            CurvedAnimation(
+                              parent: _entranceController,
+                              curve: Curves.easeOut,
+                            ),
+                          ),
+                          child: CardFace(card: widget.card),
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 20),
                     const SpendChartCard(),
                   ],
@@ -127,61 +176,9 @@ class _CardTransactionsState extends State<CardTransactions> {
                           shrinkWrap: true,
                           primary: false,
                           itemBuilder: (context, index) {
-                            final txn = cardTransactions[index];
-                            final isCredit = txn.amount >= 0;
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 13),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        width: 52,
-                                        height: 52,
-                                        decoration: BoxDecoration(
-                                          color: AppColors.grey1,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Icon(txn.icon),
-                                      ),
-                                      const SizedBox(width: 20),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            txn.title,
-                                            style: const TextStyle(
-                                              fontSize: 17,
-                                              letterSpacing: 0.4,
-                                            ),
-                                          ),
-                                          Text(
-                                            DateFormat(
-                                              'h:mm a  dd-MM-yyyy',
-                                            ).format(txn.time),
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              color: AppColors.textGrey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Text(
-                                    '${isCredit ? '+' : ''}${txn.amount.toStringAsFixed(2)}',
-                                    style: TextStyle(
-                                      color: isCredit
-                                          ? Colors.blue
-                                          : Colors.red,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            return AnimatedTransactionTile(
+                              transaction: cardTransactions[index],
+                              index: index,
                             );
                           },
                           separatorBuilder: (context, index) => const Divider(),

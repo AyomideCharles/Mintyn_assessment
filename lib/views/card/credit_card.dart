@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mintyn_bank/core/constants/app_colors.dart';
 import 'package:mintyn_bank/core/model/card_model.dart';
-import 'package:mintyn_bank/views/card/card_carousel.dart';
+import 'package:mintyn_bank/views/card/widgets/card_carousel.dart';
 import 'package:mintyn_bank/views/card_transaction/card_transactions.dart';
+import 'package:mintyn_bank/views/shared_widgets/header_text.dart';
 
 class CreditCard extends StatefulWidget {
   const CreditCard({super.key});
@@ -50,22 +51,26 @@ class _CreditCardState extends State<CreditCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Padding(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Text(
-                            'Your Card',
-                            style: TextStyle(
-                              letterSpacing: 0.4,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 28,
-                            ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Icon(Icons.navigate_before, size: 35),
+                              ),
+                              SizedBox(width: 10),
+                              HeaderText('Your Card'),
+                            ],
                           ),
-                        ),
-                        Icon(Icons.more_horiz),
-                      ],
+                          Icon(Icons.more_horiz),
+                        ],
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 20),
